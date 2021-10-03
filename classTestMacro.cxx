@@ -10,12 +10,16 @@
 void classTestMacro()
 {
     gSystem->Load("libBlastWave");
-    
+
     TCanvas *canvas = new TCanvas("canvas", "canvas", 1000, 1000);
     canvas->SetGrid();
     canvas->SetTicks();
     canvas->SetLogy();
     canvas->SetLeftMargin(0.13);
+
+    Double_t m0_pion = 0.140;   // Don't use too many decimal places or the integration doesn't work.
+    Double_t m0_kaon = 0.494;
+    Double_t m0_proton = 0.938;
 
     int boson = 1;
     int fermion = -1;
@@ -36,16 +40,16 @@ void classTestMacro()
     10      iqstat (boson or fermion)
     */
    
-    Double_t Ry = 12.04;
-    Double_t Rx = 12.04;
+    Double_t Ry = 12.04;//13.0;//12.04;
+    Double_t Rx = 12.04;//11.0;//12.04;
     Double_t T  = 0.1;
     Double_t rho_0 = 0.9;
-    Double_t rho_2 = 0.0;
+    Double_t rho_2 = 0.0;//0.05;//0.0;
     Double_t tau   = 9.0;
     Double_t a_skin = 0.0;
     Double_t del_tau = 2.0;
     Double_t nMax = 4.0;
-    Double_t m0 = 0.938;  // Starting with just protons
+    Double_t m0 = m0_proton;
     Double_t iqstat = (Double_t)fermion;
     Double_t norm = 1.0;    // Only 1 or 0
     Double_t amp = 1.0;     // Amplitude -- LEAVE THIS AT 1 FOR NOW
@@ -77,9 +81,32 @@ void classTestMacro()
 
     BW->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     BW->GetYaxis()->SetTitle("dN/p_{T}dp_{T} (arb. units)");
-    BW->Draw();
+    BW->SetMinimum(10e-04);
 
-    canvas->SaveAs("BW_proton_N4.png");
+    Double_t pionParameters[nParameters] = {Ry, Rx, T, rho_0, rho_2, tau, a_skin, del_tau, nMax, m0_pion, (Double_t)boson, norm, amp};
+    TF1 *BW_pion = new TF1("BW_pion",blastWave,&BlastWave::RLBlastWave,pTStart,pTStop,nParameters);
+    BW_pion->SetParameters(pionParameters);
+    BW_pion->FixParameter(9,m0_pion);
+    BW_pion->FixParameter(10,(Double_t)boson);
+    BW_pion->FixParameter(11,norm);
+
+    BW_pion->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    BW_pion->GetYaxis()->SetTitle("dN/p_{T}dp_{T} (arb. units)");
+    BW_pion->SetMinimum(10e-04);
+
+    BW->Draw();
+    BW_pion->Draw("SAME");
+
+    //canvas->SaveAs("BW_proton_N4_round.png");
+    //canvas->SaveAs("BW_proton_N4_nonRound.png");
+    //canvas->SaveAs("BW_pion_N1_round.png");
+    //canvas->SaveAs("BW_pion_N1_nonRound.png");
+    //canvas->SaveAs("BW_pion_N4_round.png");
+    
+    //canvas->SaveAs("BW_N4_nonRound.png");
+    canvas->SaveAs("BW_N4_round.png");
     delete canvas;
     delete BW;
+    delete BW_pion;
+    delete blastWave;
 }

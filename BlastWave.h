@@ -20,26 +20,27 @@
     "nParameters" = 13
     "parameters" must be a vector of Double_t that corresponds to the list below.
 
-    !!Don't use "normalization" and "amplitude" at the same time!!
+    !! Don't use "normalization" and "amplitude" at the same time !!
     If fitting spectra, or using "amplitude", just fix "normalization" = 0.0 to turn it off.
     Only nomalization = 1.0 has any effect currently.
 
-    nMax is the maximum for the summation in the emission function S(x,K).
+    !! Don't use too many decimal places for the rest mass 'm0' !!
+    The integration doesn't work if there are too many decimal places, but three seems to be safe.
 
     Index   Parameter
     -----   ---------
-    par[0]   Ry (fm)
-    par[1]   Rx (fm)
-    par[2]   T (GeV)
-    par[3]   rho_0
-    par[4]   rho_2
-    par[5]   tau (fm/c)
-    par[6]   a_skin
-    par[7]   del-tau (fm/c)
-    par[8]   nMax (integer >= 1)
-    par[9]   m0 (GeV rest mass)                 [FIXED]
-    par[10]  iqstat (1 (boson) or -1 (fermion)) [FIXED]
-    par[11]  normalization                      [FIXED]
+    par[0]   Ry (fm)                Source transverse major axis radius.
+    par[1]   Rx (fm)                Source transverse minor axis radius.
+    par[2]   T (GeV)                Source temperature
+    par[3]   rho_0                  Zeroth order term in source transverse flow rapidity.
+    par[4]   rho_2                  Second order term in source transverse flow rapidity.
+    par[5]   tau (fm/c)             Peak freezeout time in proper time.
+    par[6]   a_skin                 *fractional* skin depth
+    par[7]   del-tau (fm/c)         Duration of freezeout in proper time.
+    par[8]   nMax (integer >= 1)    Max for the summation in the emission function.
+    par[9]   m0 (GeV)           [FIXED]     Rest mass
+    par[10]  iqstat             [FIXED]     1 (boson) or -1 (fermion)
+    par[11]  normalization      [FIXED]
     par[12]  amplitude
 */
 

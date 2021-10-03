@@ -33,26 +33,41 @@ Double_t BlastWave::BW_R_Integrand(Double_t *x, Double_t *par)
     */
 
     // (6) Sixth, create the full integrand
-    Double_t r_ellipse = TMath::Sqrt(TMath::Power(x[0]*TMath::Cos(par[12])/par[1], 2) + TMath::Power(x[0]*TMath::Sin(par[12])/par[0], 2));
+    Double_t xx = x[0];  // radius, the term being integrated here
+    Double_t Ry = par[0];
+    Double_t Rx = par[1];
+    Double_t T  = par[2];
+    Double_t rho_0 = par[3];
+    Double_t rho_2 = par[4];
+    Double_t tau = par[5];
+    Double_t a_skin = par[6];
+    Double_t del_tau = par[7];
+    Double_t m0 = par[8];
+    Double_t pT = par[9];
+    Double_t nTerm = par[10];
+    Double_t phi_p = par[11];
+    Double_t phi_s = par[12];
+
+    Double_t r_ellipse = TMath::Sqrt(TMath::Power(xx*TMath::Cos(phi_s)/Rx, 2) + TMath::Power(xx*TMath::Sin(phi_s)/Ry, 2));
 
     Double_t spatial_density = 1.0;
-    if (par[6] != 0.0) { spatial_density = 1.0 / (1.0 + TMath::Exp((r_ellipse - 1.0) / par[6])); }
+    if (a_skin != 0.0) { spatial_density = 1.0 / (1.0 + TMath::Exp((r_ellipse - 1.0) / a_skin)); }
 
-    Double_t eta2 = TMath::Power(par[0]/par[1],2); // (Ry/Rx)^2
-    Double_t phi_b = TMath::ATan2(TMath::Tan(par[12]), eta2);
+    Double_t eta2 = TMath::Power(Ry/Rx, 2); // (Ry/Rx)^2
+    Double_t phi_b = TMath::ATan2(TMath::Tan(phi_s), eta2);
 
-    Double_t rho = r_ellipse * (par[3] + par[4]*TMath::Cos(2*phi_b));
+    Double_t rho = r_ellipse * (rho_0 + rho_2*TMath::Cos(2*phi_b));
 
     //Double_t pT = TMath::Sqrt(par[9]*par[9] - par[8]*par[8]);
-    Double_t mT = TMath::Sqrt(par[8]*par[8] + par[9]*par[9]);
+    Double_t mT = TMath::Sqrt(m0*m0 + pT*pT);
     
-    Double_t alpha = (par[9]/par[2]) * TMath::SinH(rho);
-    Double_t beta  = (mT/par[2]) * TMath::CosH(rho);
+    Double_t alpha = (pT/T) * TMath::SinH(rho);
+    Double_t beta  = (mT/T) * TMath::CosH(rho);
 
-    Double_t fvalue = TMath::Exp(par[10] * alpha * TMath::Cos(phi_b - par[11])) * spatial_density;
-    Double_t fvalue_r = x[0] * fvalue; // since the 'r' integral has 'rdr' in it
+    // 'xx' on this is due to the 'r' integral having 'rdr' in it:
+    Double_t fvalue_r = xx * TMath::Exp(nTerm * alpha * TMath::Cos(phi_b - phi_p)) * spatial_density;
 
-    Double_t beta_N = beta * par[10];
+    Double_t beta_N = nTerm * beta;
     Double_t K1  = TMath::BesselK(1,beta_N);
     Double_t G00 = 2.0 * K1;
 
